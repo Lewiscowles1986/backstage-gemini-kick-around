@@ -1,0 +1,126 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: backstage
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  kroki:
+    image: yuzutech/kroki
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Helper to create the bucket since MinIO doesn't create it automatically
+  create-bucket:
+    image: minio/mc
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set local http://minio:9000 minioadmin minioadmin;
+      /usr/bin/mc mb local/backstage-techdocs;
+      exit 0;
+      "
+
+  backstage:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: backstage
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      AWS_ACCESS_KEY_ID: minioadmin
+      AWS_SECRET_ACCESS_KEY: minioadmin
+    ports:
+      - "7007:7007"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7007/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    depends_on:
+      db:
+        condition: service_healthy
+      kroki:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      create-bucket:
+        condition: service_completed_successfully
+    volumes:
+      - ./sample-repos:/app/sample-repos
+      - ./app-config.yaml:/app/app-config.yaml
+      - ./app-config.production.yaml:/app/app-config.production.yaml
+
+  # Docs Builder for Repo A
+  docs-build-repo-a:
+    build:
+      context: .
+      dockerfile: Dockerfile.techdocs
+    environment:
+      AWS_ACCESS_KEY_ID: minioadmin
+      AWS_SECRET_ACCESS_KEY: minioadmin
+      AWS_REGION: us-east-1
+    volumes:
+      - ./sample-repos/repo-a:/src
+    # Generate and then Publish to S3
+    command: >
+      /bin/sh -c "
+      techdocs-cli generate --source-dir /src --output-dir /tmp/repo-a;
+      techdocs-cli publish --publisher-type awsS3 --s3-endpoint http://minio:9000 --bucket backstage-techdocs --entity default/Component/repo-a --directory /tmp/repo-a;
+      "
+    depends_on:
+      backstage:
+        condition: service_healthy
+
+  # Docs Builder for Repo B
+  docs-build-repo-b:
+    build:
+      context: .
+      dockerfile: Dockerfile.techdocs
+    environment:
+      AWS_ACCESS_KEY_ID: minioadmin
+      AWS_SECRET_ACCESS_KEY: minioadmin
+      AWS_REGION: us-east-1
+    volumes:
+      - ./sample-repos/repo-b:/src
+    command: >
+      /bin/sh -c "
+      techdocs-cli generate --source-dir /src --output-dir /tmp/repo-b;
+      techdocs-cli publish --publisher-type awsS3 --s3-endpoint http://minio:9000 --bucket backstage-techdocs --entity default/Component/repo-b --directory /tmp/repo-b;
+      "
+    depends_on:
+      backstage:
+        condition: service_healthy

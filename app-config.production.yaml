@@ -40,6 +40,10 @@ catalog:
     # Local example data, replace this with your production config, these are intended for demo use only.
     # File locations are relative to the backend process, typically in a deployed context, such as in a Docker container, this will be the root
     - type: file
+      target: ./sample-repos/repo-a/catalog-info.yaml
+    - type: file
+      target: ./sample-repos/repo-b/catalog-info.yaml
+    - type: file
       target: ./examples/entities.yaml
 
     # Local example template

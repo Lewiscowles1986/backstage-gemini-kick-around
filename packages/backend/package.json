@@ -50,7 +50,8 @@
     "pg": "^8.11.3"
   },
   "devDependencies": {
-    "@backstage/cli": "^0.36.1"
+    "@backstage/cli": "^0.36.1",
+    "jest": "^30.2.0"
   },
   "files": [
     "dist"

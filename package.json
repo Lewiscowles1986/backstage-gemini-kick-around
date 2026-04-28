@@ -46,6 +46,7 @@
     "jsdom": "^27.1.0",
     "node-gyp": "^10.0.0",
     "prettier": "^2.3.2",
+    "tree-sitter": "^0.22.4",
     "typescript": "~5.8.0"
   },
   "resolutions": {

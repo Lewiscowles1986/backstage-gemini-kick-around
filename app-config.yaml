@@ -77,11 +77,17 @@ proxy:
 # and an external cloud storage when deploying TechDocs for production use-case.
 # https://backstage.io/docs/features/techdocs/how-to-guides#how-to-migrate-from-techdocs-basic-to-recommended-deployment-approach
 techdocs:
-  builder: 'local' # Alternatives - 'external'
-  generator:
-    runIn: 'docker' # Alternatives - 'local'
+  builder: 'external'
   publisher:
-    type: 'local' # Alternatives - 'googleGcs' or 'awsS3'. Read documentation for using alternatives.
+    type: 'awsS3'
+    awsS3:
+      bucketName: 'backstage-techdocs'
+      region: 'us-east-1'
+      endpoint: 'http://minio:9000'
+      s3ForcePathStyle: true
+      credentials:
+        accessKeyId: 'minioadmin'
+        secretAccessKey: 'minioadmin'
 
 auth:
   # see https://backstage.io/docs/auth/ to learn about auth providers
@@ -92,14 +98,6 @@ auth:
   # to learn more about client id metadata documents
   experimentalClientIdMetadataDocuments:
     enabled: false
-    # Optional: restrict which `client_id` URLs are allowed (defaults to ['*'])
-    # allowedClientIdPatterns:
-    #   - 'https://example.com/*'
-    #   - 'https://*.trusted-domain.com/*'
-    # Optional: restrict which redirect URIs are allowed (defaults to ['*'])
-    # allowedRedirectUriPatterns:
-    #   - 'http://localhost:*'
-    #   - 'https://*.example.com/*'
 
 scaffolder:
   # see https://backstage.io/docs/features/software-templates/configuration for software template options
@@ -113,17 +111,22 @@ catalog:
   locations:
     # Local example data, file locations are relative to the backend process, typically `packages/backend`
     - type: file
-      target: ../../examples/entities.yaml
+      target: ./sample-repos/repo-a/catalog-info.yaml
+    - type: file
+      target: ./sample-repos/repo-b/catalog-info.yaml
+
+    - type: file
+      target: ./examples/entities.yaml
 
     # Local example template
     - type: file
-      target: ../../examples/template/template.yaml
+      target: ./examples/template/template.yaml
       rules:
         - allow: [Template]
 
     # Local example organizational data
     - type: file
-      target: ../../examples/org.yaml
+      target: ./examples/org.yaml
       rules:
         - allow: [User, Group]
 

@@ -1,0 +1,5 @@
+site_name: Repo B
+plugins:
+  - techdocs-core
+  - kroki:
+      ServerURL: http://kroki:8000
