@@ -28,6 +28,8 @@ services:
 
   kroki:
     image: yuzutech/kroki
+    environment:
+      - KROKI_MERMAID_HOST=mermaid
     ports:
       - "8000:8000"
     healthcheck:
@@ -35,6 +37,13 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    depends_on:
+      - mermaid
+
+  mermaid:
+    image: yuzutech/kroki-mermaid
+    expose:
+      - "8002"
 
   # Helper to create the bucket since MinIO doesn't create it automatically
   create-bucket:
