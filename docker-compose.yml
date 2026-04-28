@@ -106,9 +106,10 @@ services:
       AWS_S3_FORCE_PATH_STYLE: "true"
     volumes:
       - ./sample-repos/repo-a:/src
+      - ./techdocs-defaults.yml:/techdocs-defaults.yml
     # Generate and then Publish to S3
     command: >
-      "techdocs-cli generate --no-docker --source-dir /src --output-dir /tmp/repo-a &&
+      sh -c "techdocs-cli generate --verbose --no-docker --source-dir /src --output-dir /tmp/repo-a --config /techdocs-defaults.yml &&
       techdocs-cli publish --publisher-type awsS3 --storage-name backstage-techdocs --awsS3ForcePathStyle --entity default/Component/repo-a --directory /tmp/repo-a"
     depends_on:
       backstage:
@@ -127,8 +128,9 @@ services:
       AWS_S3_FORCE_PATH_STYLE: "true"
     volumes:
       - ./sample-repos/repo-b:/src
+      - ./techdocs-defaults.yml:/techdocs-defaults.yml
     command: >
-      "techdocs-cli generate --no-docker --source-dir /src --output-dir /tmp/repo-b &&
+      sh -c "techdocs-cli generate --verbose --no-docker --source-dir /src --output-dir /tmp/repo-b --config /techdocs-defaults.yml &&
       techdocs-cli publish --publisher-type awsS3 --storage-name backstage-techdocs --awsS3ForcePathStyle --entity default/Component/repo-b --directory /tmp/repo-b"
     depends_on:
       backstage:

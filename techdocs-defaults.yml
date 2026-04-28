@@ -1,0 +1,12 @@
+theme:
+  name: material
+
+plugins:
+  - kroki:
+      server_url: http://kroki:8000
+      http_method: 'POST'
+      embed: true
+      download_images: true
+      DownloadImages: true
+      file_format: 'svg'
+      diagram_background_color: 'transparent'

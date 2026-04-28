@@ -1,9 +1,1 @@
 site_name: Repo B
-plugins:
-  - techdocs-core
-  - kroki:
-      server_url: http://kroki:8000
-      http_method: POST
-      download_images: true
-      embed: true
-      file_format: svg
