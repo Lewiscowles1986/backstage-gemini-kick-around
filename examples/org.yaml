@@ -4,7 +4,11 @@ apiVersion: backstage.io/v1alpha1
 kind: User
 metadata:
   name: guest
+  annotations:
+    backstage.io/auth-entity-ref: user:default/guest
 spec:
+  profile:
+    email: guest@example.com
   memberOf: [guests]
 ---
 # https://backstage.io/docs/features/software-catalog/descriptor-format#kind-group

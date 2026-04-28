@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   db:
     image: postgres:16
@@ -63,10 +61,12 @@ services:
       POSTGRES_PORT: 5432
       AWS_ACCESS_KEY_ID: minioadmin
       AWS_SECRET_ACCESS_KEY: minioadmin
+      BACKEND_SECRET: "placeholder-secret-for-dev"
+      GITHUB_TOKEN: "placeholder-token-for-dev"
     ports:
       - "7007:7007"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:7007/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:7007/.backstage/health/v1/readiness"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -93,14 +93,14 @@ services:
       AWS_ACCESS_KEY_ID: minioadmin
       AWS_SECRET_ACCESS_KEY: minioadmin
       AWS_REGION: us-east-1
+      AWS_ENDPOINT_URL: http://minio:9000
+      AWS_S3_FORCE_PATH_STYLE: "true"
     volumes:
       - ./sample-repos/repo-a:/src
     # Generate and then Publish to S3
     command: >
-      /bin/sh -c "
-      techdocs-cli generate --source-dir /src --output-dir /tmp/repo-a;
-      techdocs-cli publish --publisher-type awsS3 --s3-endpoint http://minio:9000 --bucket backstage-techdocs --entity default/Component/repo-a --directory /tmp/repo-a;
-      "
+      "techdocs-cli generate --no-docker --source-dir /src --output-dir /tmp/repo-a &&
+      techdocs-cli publish --publisher-type awsS3 --storage-name backstage-techdocs --awsS3ForcePathStyle --entity default/Component/repo-a --directory /tmp/repo-a"
     depends_on:
       backstage:
         condition: service_healthy
@@ -114,13 +114,13 @@ services:
       AWS_ACCESS_KEY_ID: minioadmin
       AWS_SECRET_ACCESS_KEY: minioadmin
       AWS_REGION: us-east-1
+      AWS_ENDPOINT_URL: http://minio:9000
+      AWS_S3_FORCE_PATH_STYLE: "true"
     volumes:
       - ./sample-repos/repo-b:/src
     command: >
-      /bin/sh -c "
-      techdocs-cli generate --source-dir /src --output-dir /tmp/repo-b;
-      techdocs-cli publish --publisher-type awsS3 --s3-endpoint http://minio:9000 --bucket backstage-techdocs --entity default/Component/repo-b --directory /tmp/repo-b;
-      "
+      "techdocs-cli generate --no-docker --source-dir /src --output-dir /tmp/repo-b &&
+      techdocs-cli publish --publisher-type awsS3 --storage-name backstage-techdocs --awsS3ForcePathStyle --entity default/Component/repo-b --directory /tmp/repo-b"
     depends_on:
       backstage:
         condition: service_healthy

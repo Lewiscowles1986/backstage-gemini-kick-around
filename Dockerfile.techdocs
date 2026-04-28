@@ -14,4 +14,4 @@ RUN pip install mkdocs-techdocs-core==1.3.1 mkdocs-kroki-plugin
 RUN npm install -g @techdocs/cli
 
 WORKDIR /src
-ENTRYPOINT ["techdocs-cli"]
+ENTRYPOINT ["/bin/sh", "-c"]
