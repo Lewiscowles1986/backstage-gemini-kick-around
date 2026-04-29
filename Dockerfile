@@ -84,7 +84,6 @@ RUN tar xzf bundle.tar.gz && rm bundle.tar.gz
 
 # Copy config files
 COPY app-config.yaml app-config.production.yaml ./
-COPY examples ./examples
 
 # This switches many Node.js dependencies to production mode.
 ENV NODE_ENV=production
