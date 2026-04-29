@@ -1,7 +1,7 @@
 # Repo B Documentation
 This is some documentation for repo B.
 
-```kroki-mermaid
+```mermaid
 ---
 config:
   theme: 'dark'

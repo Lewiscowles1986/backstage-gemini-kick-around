@@ -6,6 +6,7 @@ plugins:
       server_url: http://kroki:8000
       http_method: 'POST'
       embed: true
+      fence_prefix: ''
       download_images: true
       DownloadImages: true
       file_format: 'svg'
