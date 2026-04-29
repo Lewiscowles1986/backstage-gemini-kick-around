@@ -11,10 +11,16 @@ yarn start
 
 ## 🐳 Docker Usage (recommended)
 
-To start the entire platform including Postgres, Minio (S3), and Kroki:
+To start the entire platform with fresh builds:
 
 ```sh
-docker-compose up -d
+docker compose up --build -d
+```
+
+To stop the platform and completely clean up (including volumes):
+
+```sh
+docker compose down --remove-orphans --volumes
 ```
 
 | Service | URL |

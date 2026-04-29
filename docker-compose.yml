@@ -109,8 +109,11 @@ services:
       - ./techdocs-defaults.yml:/techdocs-defaults.yml
     # Generate and then Publish to S3
     command: >
-      sh -c "techdocs-cli generate --verbose --no-docker --source-dir /src --output-dir /tmp/repo-a --config /techdocs-defaults.yml &&
-      techdocs-cli publish --publisher-type awsS3 --storage-name backstage-techdocs --awsS3ForcePathStyle --entity default/Component/repo-a --directory /tmp/repo-a"
+      "cp /src/mkdocs.yml /src/mkdocs.yml.bak && \
+      yq eval-all 'select(fileIndex == 0) *+ select(fileIndex == 1)' /src/mkdocs.yml /techdocs-defaults.yml > /src/combined.yml && mv /src/combined.yml /src/mkdocs.yml &&
+      techdocs-cli generate --no-docker --source-dir /src --output-dir /tmp/repo-a &&
+      techdocs-cli publish --publisher-type awsS3 --storage-name backstage-techdocs --awsS3ForcePathStyle --entity default/Component/repo-a --directory /tmp/repo-a && \
+      mv /src/mkdocs.yml.bak /src/mkdocs.yml"
     depends_on:
       backstage:
         condition: service_healthy
@@ -130,8 +133,11 @@ services:
       - ./sample-repos/repo-b:/src
       - ./techdocs-defaults.yml:/techdocs-defaults.yml
     command: >
-      sh -c "techdocs-cli generate --verbose --no-docker --source-dir /src --output-dir /tmp/repo-b --config /techdocs-defaults.yml &&
-      techdocs-cli publish --publisher-type awsS3 --storage-name backstage-techdocs --awsS3ForcePathStyle --entity default/Component/repo-b --directory /tmp/repo-b"
+      "cp /src/mkdocs.yml /src/mkdocs.yml.bak && \
+      yq eval-all 'select(fileIndex == 0) *+ select(fileIndex == 1)' /src/mkdocs.yml /techdocs-defaults.yml > /src/combined.yml && mv /src/combined.yml /src/mkdocs.yml &&
+      techdocs-cli generate --no-docker --source-dir /src --output-dir /tmp/repo-b &&
+      techdocs-cli publish --publisher-type awsS3 --storage-name backstage-techdocs --awsS3ForcePathStyle --entity default/Component/repo-b --directory /tmp/repo-b && \
+      mv /src/mkdocs.yml.bak /src/mkdocs.yml"
     depends_on:
       backstage:
         condition: service_healthy
